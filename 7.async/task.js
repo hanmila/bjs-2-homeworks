@@ -5,48 +5,42 @@ class AlarmClock {
     }
 
     addClock(time, callback) {
-        this.time = new Date({ hour: '2-digit', minute: '2-digit' });
-        this.callback = () => {
-
-        };
-
-        if(!time || !callback) {
+        if (!time || !callback) {
             throw new Error('Отсутствуют обязательные аргументы');
-        } else if(this.time in this.alarmCollection) {
-            console.warn('Уже присутствует звонок на это же время');
-        } else {
-            const clock = {
-                callback,
-                time,
-                canCall: true
-            };
-            this.alarmCollection.push(clock);
         }
+
+        if (this.alarmCollection.some(clock => clock.time === time)) {
+            console.warn('Уже присутствует звонок на это же время');
+        }
+
+        this.alarmCollection.push({
+            callback,
+            time,
+            canCall: true
+        });
     }
 
     removeClock(time) {
-        this.time = time;
         this.alarmCollection = this.alarmCollection.filter(clock => clock.time !== time);
     }
 
     getCurrentFormattedTime() {
-        let time = new Date();
-        return time.toLocaleTimeString("ru-RU", { hour: '2-digit', minute: '2-digit' });
+        return new Date().toLocaleTimeString("ru-RU", { hour: '2-digit', minute: '2-digit' });
     }
 
     start() {
         if (this.intervalId) {
             return this.intervalId;
-        } else {
-            this.intervalId = setInterval(() => {
-                this.alarmCollection.forEach((clock) => {
-                    if (clock.time === this.getCurrentFormattedTime() && clock.canCall) {
-                        clock.canCall = false;
-                        clock.callback();
-                    }
-                });
-            }, 1000);
         }
+
+        this.intervalId = setInterval(() => {
+            this.alarmCollection.forEach((clock) => {
+                if (clock.time === this.getCurrentFormattedTime() && clock.canCall) {
+                    clock.canCall = false;
+                    clock.callback();
+                }
+            });
+        }, 1000);
     }
 
     stop() {
