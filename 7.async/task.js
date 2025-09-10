@@ -15,7 +15,7 @@ class AlarmClock {
         } else if(this.time in this.alarmCollection) {
             console.warn('Уже присутствует звонок на это же время');
         } else {
-            let clock = {
+            const clock = {
                 callback,
                 time,
                 canCall: true
@@ -26,40 +26,38 @@ class AlarmClock {
 
     removeClock(time) {
         this.time = time;
-        this.alarmCollection.filter((clock) => clock.time === time);
+        this.alarmCollection = this.alarmCollection.filter(clock => clock.time !== time);
     }
 
     getCurrentFormattedTime() {
-        console.log(this.time.toLocaleTimeString("ru-Ru", {
-            hour: "2-digit", 
-            minute: "2-digit"
-        }));
+        let time = new Date();
+        return time.toLocaleTimeString("ru-RU", { hour: '2-digit', minute: '2-digit' });
     }
 
     start() {
-        if(this.intervalId !== undefined) {
+        if (this.intervalId) {
             return this.intervalId;
+        } else {
+            this.intervalId = setInterval(() => {
+                this.alarmCollection.forEach((clock) => {
+                    if (clock.time === this.getCurrentFormattedTime() && clock.canCall) {
+                        clock.canCall = false;
+                        clock.callback();
+                    }
+                });
+            }, 1000);
         }
-
-        setInterval(() => {
-            this.alarmCollection.forEach(() => {
-                if(this.time = new Date && canCall === true) {
-                    this.canCall = false;
-                    clock.callback();
-                }
-            })
-        });
-
-        return this.intervalId;
     }
 
     stop() {
         clearInterval(this.intervalId);
-        return null;
+        this.intervalId = null;
     }
 
     resetAllCalls() {
-        this.alarmCollection.forEach(this.clock[canCall] = 'true');
+        this.alarmCollection.forEach((clock) => {
+            clock.canCall = true;
+        });
     }
 
     clearAlarms() {
